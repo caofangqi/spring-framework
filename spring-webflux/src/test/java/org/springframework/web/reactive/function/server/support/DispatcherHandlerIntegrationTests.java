@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -45,6 +45,7 @@ public class DispatcherHandlerIntegrationTests extends AbstractHttpHandlerIntegr
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
+
 	@Override
 	protected HttpHandler createHttpHandler() {
 		AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
@@ -54,12 +55,13 @@ public class DispatcherHandlerIntegrationTests extends AbstractHttpHandlerIntegr
 		return WebHttpHandlerBuilder.webHandler(new DispatcherHandler(wac)).build();
 	}
 
+
 	@Test
 	public void nested() {
 		ResponseEntity<String> result = this.restTemplate
 				.getForEntity("http://localhost:" + this.port + "/foo/bar", String.class);
 
-		assertEquals(200, result.getStatusCodeValue());
+		assertThat(result.getStatusCodeValue()).isEqualTo(200);
 	}
 
 
@@ -83,14 +85,12 @@ public class DispatcherHandlerIntegrationTests extends AbstractHttpHandlerIntegr
 		}
 	}
 
+
 	static class Handler {
 
 		public Mono<ServerResponse> handle(ServerRequest request) {
 			return ServerResponse.ok().build();
 		}
 	}
-
-
-
 
 }
