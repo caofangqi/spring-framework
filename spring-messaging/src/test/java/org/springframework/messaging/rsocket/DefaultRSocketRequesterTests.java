@@ -19,7 +19,6 @@ package org.springframework.messaging.rsocket;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -29,7 +28,6 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.Payload;
-import io.rsocket.metadata.CompositeMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
@@ -37,17 +35,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import org.springframework.core.codec.CharSequenceEncoder;
-import org.springframework.core.codec.StringDecoder;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.messaging.rsocket.RSocketRequester.RequestSpec;
 import org.springframework.messaging.rsocket.RSocketRequester.ResponseSpec;
-import org.springframework.util.MimeTypeUtils;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.util.MimeTypeUtils.TEXT_PLAIN;
 
 /**
  * Unit tests for {@link DefaultRSocketRequester}.
@@ -63,21 +59,15 @@ public class DefaultRSocketRequesterTests {
 
 	private RSocketRequester requester;
 
-	private RSocketStrategies strategies;
+	private final RSocketStrategies strategies = RSocketStrategies.create();
 
 	private final DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
 
 
 	@Before
 	public void setUp() {
-		this.strategies = RSocketStrategies.builder()
-				.decoder(StringDecoder.allMimeTypes())
-				.encoder(CharSequenceEncoder.allMimeTypes())
-				.build();
 		this.rsocket = new TestRSocket();
-		this.requester = RSocketRequester.wrap(this.rsocket,
-				MimeTypeUtils.TEXT_PLAIN, DefaultRSocketRequester.ROUTING,
-				this.strategies);
+		this.requester = RSocketRequester.wrap(this.rsocket, TEXT_PLAIN, TEXT_PLAIN, this.strategies);
 	}
 
 
@@ -140,45 +130,6 @@ public class DefaultRSocketRequesterTests {
 			assertThat(payloads.stream().map(Payload::getDataUtf8).toArray(String[]::new))
 					.isEqualTo(expectedValues);
 		}
-	}
-
-	@Test
-	public void sendCompositeMetadata() {
-		RSocketRequester requester = RSocketRequester.wrap(this.rsocket,
-				MimeTypeUtils.TEXT_PLAIN, DefaultRSocketRequester.COMPOSITE_METADATA,
-				this.strategies);
-
-		requester.route("toA")
-				.metadata("My metadata", MimeTypeUtils.TEXT_PLAIN).data("bodyA")
-				.send()
-				.block(Duration.ofSeconds(5));
-
-		CompositeMetadata entries = new CompositeMetadata(this.rsocket.getSavedPayload().metadata(), false);
-		Iterator<CompositeMetadata.Entry> iterator = entries.iterator();
-
-		assertThat(iterator.hasNext()).isTrue();
-		CompositeMetadata.Entry entry = iterator.next();
-		assertThat(entry.getMimeType()).isEqualTo(DefaultRSocketRequester.ROUTING.toString());
-		assertThat(entry.getContent().toString(StandardCharsets.UTF_8)).isEqualTo("toA");
-
-		assertThat(iterator.hasNext()).isTrue();
-		entry = iterator.next();
-		assertThat(entry.getMimeType()).isEqualTo(MimeTypeUtils.TEXT_PLAIN.toString());
-		assertThat(entry.getContent().toString(StandardCharsets.UTF_8)).isEqualTo("My metadata");
-
-		assertThat(iterator.hasNext()).isFalse();
-	}
-
-	@Test
-	public void supportedMetadataMimeTypes() {
-		RSocketRequester.wrap(this.rsocket, MimeTypeUtils.TEXT_PLAIN,
-				DefaultRSocketRequester.COMPOSITE_METADATA, this.strategies);
-
-		RSocketRequester.wrap(this.rsocket, MimeTypeUtils.TEXT_PLAIN,
-				DefaultRSocketRequester.ROUTING, this.strategies);
-
-		assertThatIllegalArgumentException().isThrownBy(() -> RSocketRequester.wrap(
-				this.rsocket, MimeTypeUtils.TEXT_PLAIN, MimeTypeUtils.TEXT_PLAIN, this.strategies));
 	}
 
 	@Test
