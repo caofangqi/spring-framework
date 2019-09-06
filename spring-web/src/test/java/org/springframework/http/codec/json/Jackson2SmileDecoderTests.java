@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import org.springframework.core.ResolvableType;
@@ -67,6 +67,7 @@ public class Jackson2SmileDecoderTests extends AbstractDecoderTestCase<Jackson2S
 	}
 
 	@Override
+	@Test
 	public void decode() {
 		Flux<DataBuffer> input = Flux.just(this.pojo1, this.pojo2)
 				.map(this::writeObject)
@@ -90,6 +91,7 @@ public class Jackson2SmileDecoderTests extends AbstractDecoderTestCase<Jackson2S
 	}
 
 	@Override
+	@Test
 	public void decodeToMono() {
 		List<Pojo> expected = Arrays.asList(pojo1, pojo2);
 

@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.TypeDescriptor;
@@ -2261,6 +2261,7 @@ public class SpelReproTests extends AbstractExpressionTests {
 			this.string = string;
 		}
 
+		@Override
 		public boolean equals(Object other) {
 			return (this == other || (other instanceof TestClass2 &&
 					this.string.equals(((TestClass2) other).string)));

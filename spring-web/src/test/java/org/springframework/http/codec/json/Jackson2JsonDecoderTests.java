@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -115,6 +115,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTestCase<Jackson2Js
 	}
 
 	@Override
+	@Test
 	public void decodeToMono() {
 		Flux<DataBuffer> input = Flux.concat(
 				stringBuffer("[{\"bar\":\"b1\",\"foo\":\"f1\"},"),

@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
 import org.springframework.core.ResolvableType;
@@ -90,6 +90,7 @@ public class Jackson2CborDecoderTests extends AbstractDecoderTestCase<Jackson2Cb
 	}
 
 	@Override
+	@Test
 	public void decodeToMono() {
 		List<Pojo> expected = Arrays.asList(pojo1, pojo2);
 

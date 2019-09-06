@@ -18,9 +18,10 @@ package org.springframework.http.codec.xml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+
 import javax.xml.stream.events.XMLEvent;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;

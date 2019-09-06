@@ -21,13 +21,14 @@ import java.lang.reflect.Method;
 import java.net.BindException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.management.Descriptor;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.jmx.AbstractMBeanServerTests;
 import org.springframework.jmx.IJmxTestBean;
