@@ -10,6 +10,7 @@ plugins {
 	id "io.spring.gradle-enterprise-conventions" version "0.0.2"
 }
 
+
 include "spring-aop"
 include "spring-aspects"
 include "spring-beans"
