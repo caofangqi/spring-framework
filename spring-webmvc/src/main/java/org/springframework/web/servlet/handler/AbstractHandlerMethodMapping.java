@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.core.KotlinDetector;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -49,6 +48,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * Abstract base class for {@link HandlerMapping} implementations that define
@@ -99,6 +99,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 	private final MappingRegistry mappingRegistry = new MappingRegistry();
 
+
+	@Override
+	public void setPatternParser(PathPatternParser patternParser) {
+		Assert.state(this.mappingRegistry.getRegistrations().isEmpty(),
+				"PathPatternParser must be set before the initialization of " +
+						"request mappings through InitializingBean#afterPropertiesSet.");
+		super.setPatternParser(patternParser);
+	}
 
 	/**
 	 * Whether to detect handler methods in beans in ancestor ApplicationContexts.
@@ -606,13 +614,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		public void register(T mapping, Object handler, Method method) {
-			// Assert that the handler method is not a suspending one.
-			if (KotlinDetector.isKotlinType(method.getDeclaringClass())) {
-				Class<?>[] types = method.getParameterTypes();
-				if ((types.length > 0) && "kotlin.coroutines.Continuation".equals(types[types.length - 1].getName())) {
-					throw new IllegalStateException("Unsupported suspending handler method detected: " + method);
-				}
-			}
 			this.readWriteLock.writeLock().lock();
 			try {
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
